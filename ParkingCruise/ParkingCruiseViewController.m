@@ -21,6 +21,8 @@
     NSString *sspeed;
     NSString *pspeed;
     NSInteger no;
+    float ddrive;
+    float dcruise;
     NSString *nos;
     NSString *pno;
 }
@@ -52,6 +54,10 @@
     messageBody = [messageBody stringByAppendingString:_parkTime.text  ];
     messageBody = [messageBody stringByAppendingString:@" \n Point number: "];
     messageBody = [messageBody stringByAppendingString:pno  ];
+    messageBody = [messageBody stringByAppendingString:@"\n Cruising distance (m): "];
+    messageBody = [messageBody stringByAppendingString: [NSString stringWithFormat:@"%.2f", dcruise]];
+    messageBody = [messageBody stringByAppendingString:@"\n Total driving distance (m): "];
+    messageBody = [messageBody stringByAppendingString: [NSString stringWithFormat:@"%.2f", ddrive]];
     messageBody = [messageBody stringByAppendingString:fullTraj];
     //NSString *messageBody = @"Type of Parking (on/off): \n Final destination: ";
     // To address
@@ -102,6 +108,12 @@
     
     no = -1;
     
+    ddrive = 0.0;
+    dcruise = 0.0;
+    
+    _distanceDriven.text= @"Distance driven (m): 0";
+    _cruisingDistance.text = @"Distance cruised (m): 0";
+    
     _parkTime.text = @"-";
     _parkLat.text = @"-";
     _parkLon.text = @"-";
@@ -127,6 +139,21 @@
 {
     NSLog(@"didUpdateToLocation: %@", newLocation);
     CLLocation *currentLocation = newLocation;
+    CLLocation *previousLocation = oldLocation;
+    NSComparisonResult result;
+    
+    if (no < 2){
+        ddrive = 0;
+        _distanceDriven.text = [@"Distance driven (m): " stringByAppendingString:[NSString stringWithFormat:@"%.2f", ddrive]];
+    }else {
+        ddrive = ddrive + [currentLocation distanceFromLocation:previousLocation];
+        _distanceDriven.text = [@"Distance driven (m): " stringByAppendingString:[NSString stringWithFormat:@"%.2f", ddrive]];
+    }
+    result = [pno compare:@"-"];
+    if (result != 0) {
+        dcruise = dcruise + [currentLocation distanceFromLocation:previousLocation];
+        _cruisingDistance.text = [@"Distance cruised (m): " stringByAppendingString:[NSString stringWithFormat:@"%.2f", dcruise]];
+    }
     //NSDate *currentTime = [NSDate date];
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"d'-'MMMM'-'y 'at' HH:mm:ss"];
@@ -175,7 +202,22 @@
 }
 
 - (IBAction)resetExit:(id)sender {
-    exit(0);
+    [locationManager stopUpdatingLocation];
+    fullTraj = @"\n===========\n Full trajectory \n===========\n No,Time,Lat,Lon,Speed \n ";
+    _parkTime.text = @"-";
+    _lonLabel.text = @"Longitude";
+    _latLabel.text = @"Latitude";
+    _timeLabel.text = @"Time";
+    _parkLat.text = @"-";
+    _parkLon.text = @"-";
+    pspeed = @"-";
+    pno = @"-";
+    no = -1;
+    ddrive = 0;
+    dcruise = 0;
+    _distanceDriven.text = [@"Distance driven (m): " stringByAppendingString:[NSString stringWithFormat:@"%.2f", ddrive]];
+    _cruisingDistance.text = [@"Distance cruised (m): " stringByAppendingString:[NSString stringWithFormat:@"%.2f", dcruise]];
+    //exit(0);
 }
 
 - (IBAction)aboutUS:(id)sender {

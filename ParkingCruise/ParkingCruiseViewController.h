@@ -17,10 +17,12 @@
 - (IBAction)getCurrentLocation:(id)sender;
 @property (weak, nonatomic) IBOutlet UILabel *timeLabel;
 @property (weak, nonatomic) IBOutlet UILabel *parkTime;
+@property (weak, nonatomic) IBOutlet UILabel *cruisingDistance;
 - (IBAction)park:(id)sender;
 @property (weak, nonatomic) IBOutlet UILabel *parkLat;
 @property (weak, nonatomic) IBOutlet UILabel *parkLon;
 - (IBAction)stopTrack:(id)sender;
 - (IBAction)resetExit:(id)sender;
+@property (weak, nonatomic) IBOutlet UILabel *distanceDriven;
 - (IBAction)aboutUS:(id)sender;
 @end
