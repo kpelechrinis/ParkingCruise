@@ -7,6 +7,7 @@
 //
 
 #import "ParkingCruiseViewController.h"
+#define IS_OS_8_OR_LATER ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0)
 
 @interface ParkingCruiseViewController ()
 
@@ -54,9 +55,9 @@
     messageBody = [messageBody stringByAppendingString:_parkTime.text  ];
     messageBody = [messageBody stringByAppendingString:@" \n Point number: "];
     messageBody = [messageBody stringByAppendingString:pno  ];
-    messageBody = [messageBody stringByAppendingString:@"\n Cruising distance (m): "];
+    messageBody = [messageBody stringByAppendingString:@"\n Cruising distance in m: "];
     messageBody = [messageBody stringByAppendingString: [NSString stringWithFormat:@"%.2f", dcruise]];
-    messageBody = [messageBody stringByAppendingString:@"\n Total driving distance (m): "];
+    messageBody = [messageBody stringByAppendingString:@"\n Total driving distance in m: "];
     messageBody = [messageBody stringByAppendingString: [NSString stringWithFormat:@"%.2f", ddrive]];
     messageBody = [messageBody stringByAppendingString:fullTraj];
     //NSString *messageBody = @"Type of Parking (on/off): \n Final destination: ";
@@ -111,8 +112,8 @@
     ddrive = 0.0;
     dcruise = 0.0;
     
-    _distanceDriven.text= @"Distance driven (m): 0";
-    _cruisingDistance.text = @"Distance cruised (m): 0";
+    _distanceDriven.text= @"Distance driven in m: 0";
+    _cruisingDistance.text = @"Distance cruised in m: 0";
     
     _parkTime.text = @"-";
     _parkLat.text = @"-";
@@ -122,7 +123,12 @@
     
     fullTraj = @"\n===========\n Full trajectory \n===========\n No,Time,Lat,Lon,Speed \n ";
     //[UIApplication sharedApplication].idleTimerDisabled = YES;
+    if(IS_OS_8_OR_LATER) {
+        [locationManager requestWhenInUseAuthorization];
+        [locationManager requestAlwaysAuthorization];
+    }
     [locationManager startUpdatingLocation];
+    //[locationManager startMonitoringSignificantLocationChanges];
 }
 
 #pragma mark - CLLocationManagerDelegate
@@ -144,15 +150,15 @@
     
     if (no < 2){
         ddrive = 0;
-        _distanceDriven.text = [@"Distance driven (m): " stringByAppendingString:[NSString stringWithFormat:@"%.2f", ddrive]];
+        _distanceDriven.text = [@"Distance driven in m: " stringByAppendingString:[NSString stringWithFormat:@"%.2f", ddrive]];
     }else {
         ddrive = ddrive + [currentLocation distanceFromLocation:previousLocation];
-        _distanceDriven.text = [@"Distance driven (m): " stringByAppendingString:[NSString stringWithFormat:@"%.2f", ddrive]];
+        _distanceDriven.text = [@"Distance driven in m: " stringByAppendingString:[NSString stringWithFormat:@"%.2f", ddrive]];
     }
     result = [pno compare:@"-"];
     if (result != 0) {
         dcruise = dcruise + [currentLocation distanceFromLocation:previousLocation];
-        _cruisingDistance.text = [@"Distance cruised (m): " stringByAppendingString:[NSString stringWithFormat:@"%.2f", dcruise]];
+        _cruisingDistance.text = [@"Distance cruised in m: " stringByAppendingString:[NSString stringWithFormat:@"%.2f", dcruise]];
     }
     //NSDate *currentTime = [NSDate date];
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
@@ -198,11 +204,13 @@
 
 - (IBAction)stopTrack:(id)sender {
     [locationManager stopUpdatingLocation];
+    //[locationManager stopMonitoringSignificantLocationChanges];
     //[UIApplication sharedApplication].idleTimerDisabled = NO;
 }
 
 - (IBAction)resetExit:(id)sender {
     [locationManager stopUpdatingLocation];
+    //[locationManager stopMonitoringSignificantLocationChanges];
     fullTraj = @"\n===========\n Full trajectory \n===========\n No,Time,Lat,Lon,Speed \n ";
     _parkTime.text = @"-";
     _lonLabel.text = @"Longitude";
@@ -215,8 +223,8 @@
     no = -1;
     ddrive = 0;
     dcruise = 0;
-    _distanceDriven.text = [@"Distance driven (m): " stringByAppendingString:[NSString stringWithFormat:@"%.2f", ddrive]];
-    _cruisingDistance.text = [@"Distance cruised (m): " stringByAppendingString:[NSString stringWithFormat:@"%.2f", dcruise]];
+    _distanceDriven.text = [@"Distance driven in m: " stringByAppendingString:[NSString stringWithFormat:@"%.2f", ddrive]];
+    _cruisingDistance.text = [@"Distance cruised in m: " stringByAppendingString:[NSString stringWithFormat:@"%.2f", dcruise]];
     //exit(0);
 }
 
